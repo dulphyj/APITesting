@@ -1,0 +1,74 @@
+plugins {
+    id 'java'
+    id "org.sonarqube" version "3.4.0.2513"
+}
+
+apply plugin: 'jacoco'
+apply plugin: 'checkstyle'
+
+group 'jalasoft'
+version '0.1'
+
+repositories {
+    mavenCentral()
+    maven {
+        url "http://repo.mycompany.com/repo"
+        metadataSources {
+            mavenPom()
+            artifact()
+        }
+    }
+}
+
+dependencies {
+    testImplementation group: 'org.testng', name: 'testng', version: '7.6.0'
+    implementation group: 'io.rest-assured', name: 'rest-assured', version: '5.1.1'
+    implementation group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.17.2'
+    implementation group: 'org.slf4j', name: 'slf4j-simple', version: '2.0.0-alpha7'
+    implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.13.3'
+    implementation group: 'org.apache.poi', name: 'poi-ooxml', version: '5.2.2'
+    implementation group: 'org.seleniumhq.selenium', name: 'selenium-java', version: '3.141.59'
+    implementation group: 'io.github.bonigarcia', name: 'webdrivermanager', version: '4.4.3'
+    implementation group: 'test.webdriver', name: 'SeleniumWebDriverManager', version: '4.0.0'
+}
+
+test {
+    testLogging {
+        events "failed"
+        exceptionFormat "full"
+    }
+    useTestNG()
+    testLogging.events("standardOut", "passed", "skipped", "failed")
+    testLogging.showExceptions = true
+    testLogging.showCauses = true
+    testLogging.showStackTraces = true
+    testLogging.showStandardStreams = true
+
+
+}
+
+checkstyle {
+    toolVersion '8.34'
+    configFile file('config/checkstyle/checkstyle.xml')
+    checkstyleMain.source = "src/main/"
+    checkstyleMain.excludes = ["**/src/test/**"]
+}
+
+checkstyleMain {
+    source = 'src/main/java'
+}
+
+checkstyleTest {
+    source = 'src/main/java'
+}
+
+test.finalizedBy("checkstyleMain")
+test.finalizedBy("jacocoTestReport")
+
+sonarqube {
+    properties {
+        property "sonar.projectKey", "tojori-todoly"
+        property "sonar.organization", "todoly"
+        property "sonar.host.url", "https://sonarcloud.io"
+    }
+}
